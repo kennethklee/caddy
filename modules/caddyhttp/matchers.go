@@ -169,7 +169,10 @@ func (m *MatchHost) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 
 // Match returns true if r matches m.
 func (m MatchHost) Match(r *http.Request) bool {
-	reqHost, _, err := net.SplitHostPort(r.Host)
+	if host := r.Header.Get("X-Forwarded-Host"); host != "" {
+		host = r.Host
+	}
+	reqHost, _, err := net.SplitHostPort(host)
 	if err != nil {
 		// OK; probably didn't have a port
 		reqHost = r.Host
